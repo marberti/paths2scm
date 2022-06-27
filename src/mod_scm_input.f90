@@ -118,7 +118,7 @@ subroutine write_scm_input()
   deallocate(nodes,stat=err_n,errmsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
 
-100 FORMAT (3(1X,I6))
+100 FORMAT (1X,I15,2(1X,I6))
 101 FORMAT (1X,I2)
 102 FORMAT (1X,F8.2)
 103 FORMAT (A)
