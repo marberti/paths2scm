@@ -107,11 +107,11 @@ subroutine write_scm_input()
     write(fnumb,*)
     write(fnumb,*)
     if (mod(ii,100000_INT64) == 0) then
-      write(*,'(A,F6.1,A)') &
-        " Output generated: ",real(ii)/real(paths_found)*100.0,"%"
+      write(*,'(1X,A,A,F6.1,A)') &
+        my_name,": Output generated: ",real(ii)/real(paths_found)*100.0,"%"
     end if
   end do  
-  write(*,'(A,F6.1,A)') " Output generated: ",100.0,"%"
+  write(*,'(1X,A,A,F6.1,A)') my_name,": Output generated: ",100.0,"%"
 
   ! close
   close(unit=fnumb_in,iostat=err_n,iomsg=err_msg)
