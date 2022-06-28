@@ -57,7 +57,6 @@ subroutine write_scm_input()
     if (err_n /= 0) exit
     paths_found = paths_found + 1
   end do
-
   rewind(unit=fnumb_in,iostat=err_n,iomsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
 

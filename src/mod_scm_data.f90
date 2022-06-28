@@ -30,6 +30,7 @@ module mod_scm_data
                alllabels,                &
                barriers
 
+  ! private
   integer :: n_temper, max_steps_n
   integer :: v_number = -1
   real(REAL64) :: prod_des_en, reac_des_en

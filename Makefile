@@ -8,6 +8,7 @@ MODDIR = mod
 SOURCES = mod_error.f90                   \
           mod_get_field.f90               \
           mod_scm_data.f90                \
+          mod_scm_compute.f90             \
           mod_scm_input.f90               \
           mod_input.f90                   \
           main.f90
