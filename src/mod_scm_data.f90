@@ -12,6 +12,7 @@ module mod_scm_data
 
   ! protected variables
   protected :: flag_set_scm_variables,   &
+               flag_scm_verbose,         &
                n_temper,                 &
                max_steps_n,              &
                v_number,                 &
@@ -21,6 +22,7 @@ module mod_scm_data
                alllabels,                &
                barriers
   public    :: flag_set_scm_variables,   &
+               flag_scm_verbose,         &
                n_temper,                 &
                max_steps_n,              &
                v_number,                 &
@@ -38,6 +40,7 @@ module mod_scm_data
   character(20), dimension(:), allocatable :: alllabels
   real(REAL64), dimension(:,:), allocatable :: barriers
   logical :: flag_set_scm_variables = .false.
+  logical :: flag_scm_verbose = .false.
 
 contains
 

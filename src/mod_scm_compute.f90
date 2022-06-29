@@ -26,7 +26,6 @@ module mod_scm_compute
   real(REAL64), dimension(:), allocatable :: theta
   real(REAL64), dimension(:), allocatable :: Theta_means
   real(REAL64), dimension(:), allocatable :: S_j
-!  real(REAL64), dimension(:), allocatable :: theta_matrix
   character(20), dimension(:), allocatable :: labelset
 
 contains
@@ -255,7 +254,7 @@ subroutine calc_scm(nofsteps,T,E,s)
     theta(i) = sum(matrix(i,1:nofsteps))/Mtot
   end do
 
-  call writeout(T,nofsteps,s)
+  if (flag_scm_verbose) call writeout(T,nofsteps,s)
 
   deallocate(w,stat=err_n,errmsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
