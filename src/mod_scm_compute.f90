@@ -59,9 +59,11 @@ subroutine scm_compute()
   open(unit=fnumb_in,file=fname_in,status="old",action="read", &
     iostat=err_n,iomsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
-  open(unit=fnumb_o,file=fname_o,status="replace",action="write", &
-    iostat=err_n,iomsg=err_msg)
-  if (err_n /= 0) call error(my_name,err_msg)
+  if (flag_scm_verbose) then
+    open(unit=fnumb_o,file=fname_o,status="replace",action="write", &
+      iostat=err_n,iomsg=err_msg)
+    if (err_n /= 0) call error(my_name,err_msg)
+  end if
   open(unit=fnumb_go,file=fname_go,status="replace",action="write", &
     iostat=err_n,iomsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
@@ -172,8 +174,10 @@ subroutine scm_compute()
   ! close files
   close(unit=fnumb_in,iostat=err_n,iomsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
-  close(unit=fnumb_o,iostat=err_n,iomsg=err_msg)
-  if (err_n /= 0) call error(my_name,err_msg)
+  if (flag_scm_verbose) then
+    close(unit=fnumb_o,iostat=err_n,iomsg=err_msg)
+    if (err_n /= 0) call error(my_name,err_msg)
+  end if
   close(unit=fnumb_go,iostat=err_n,iomsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
 
