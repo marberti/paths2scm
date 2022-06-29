@@ -143,11 +143,19 @@ subroutine scm_compute()
           end if
         end do
       end do
+
+      if (mod(ii,100000_INT64) == 0) then
+        write(*,'(1X,A,A,I2,A,I2,A,F6.1,A)')   &
+          my_name,": T ",ti,"/",n_temper,": ", &
+          real(ii)/real(paths_found)*100,"%"
+      end if
     end do ! ii on paths_found
     Theta_means = Theta_means / sum_s_array
     s_mean = s_array / sum_s_array
     S_j = S_j / sum_s_array * 100
     call write_globalout(temper(ti))
+    write(*,'(1X,A,A,I2,A,I2,A,F6.1,A)') &
+      my_name,": T ",ti,"/",n_temper,": ",100.0,"%"
   end do ! ti on n_temper
 
   ! deallocation
@@ -316,9 +324,9 @@ subroutine write_globalout(T)
   do i = 1, nofmec
     if (S_j(i) > 1.0e-5_REAL64) write(fnumb_go,105) i, S_j(i)
   end do
-  write(*,*)
-  write(*,107) sum(S_j)
-  write(*,*)
+!  write(*,*)
+!  write(*,107) sum(S_j)
+!  write(*,*)
   write(fnumb_go,*) '-------------------------------------------------------------------------------'
   write(fnumb_go,*) 'Theta_means:'
   do i = 1, size(labelset)
@@ -335,7 +343,7 @@ subroutine write_globalout(T)
   104 format (' Reaction rate = ', ES9.2, ' s^-1')
   105 format (' S', I4.4, ' =', F12.4, ' %') 
   106 format (' ', A5, ' : ', ES8.2) 
-  107 format (' CHECK: ', F12.4, ' %')
+!  107 format (' CHECK: ', F12.4, ' %')
 
 end subroutine write_globalout
 
