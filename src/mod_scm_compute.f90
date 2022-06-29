@@ -308,9 +308,10 @@ subroutine write_globalout(T)
   !species (the n-th specie being each time considered in all mechanisms) %
   !are reported.
 
+  real(REAL64), intent(in) :: T
+  real(REAL64), parameter :: th = 1.0e-3_REAL64
   integer(INT64) :: i
   integer :: sc
-  real(REAL64), intent(in) :: T  
   character(20) :: tmpc
 
   write(fnumb_go,*) '_______________________________________________________________________________'
@@ -319,9 +320,9 @@ subroutine write_globalout(T)
   write(fnumb_go,*) '-------------------------------------------------------------------------------'
   write(fnumb_go,104) s_mean
   write(fnumb_go,*) '-------------------------------------------------------------------------------'
-  write(fnumb_go,*) "Percentage selectivities Sj (j=1,nofmec; threshold 1E-5 ):"
+  write(fnumb_go,108) th
   do i = 1, nofmec
-    if (S_j(i) > 1.0e-5_REAL64) write(fnumb_go,105) i, S_j(i)
+    if (S_j(i) > th) write(fnumb_go,105) i, S_j(i)
   end do
 !  write(*,*)
 !  write(*,107) sum(S_j)
@@ -333,16 +334,19 @@ subroutine write_globalout(T)
     sc = 1
     if (tmpc(2:2) == ':') sc=3
     if (tmpc(3:3) == ':') sc=4
+    if (tmpc(4:4) == ':') sc=5
     write(fnumb_go,106) tmpc(sc:), Theta_means(i)
   end do
   write(fnumb_go,*) '_______________________________________________________________________________'
   write(fnumb_go,*) 
 
-  103 format (' Temperature:', F9.2, ' K')
-  104 format (' Reaction rate = ', ES9.2, ' s^-1')
-  105 format (' S', I4.4, ' =', F12.4, ' %') 
-  106 format (' ', A5, ' : ', ES8.2) 
-!  107 format (' CHECK: ', F12.4, ' %')
+  103 format (1X,'Temperature : ',F9.2,' K')
+  104 format (1X,'Reaction rate = ',ES9.2,' s^-1')
+  105 format (1X,'j = ',I18,' ; Sj = ',F8.3,' %')
+  106 format (1X,A5,' : ',ES8.2)
+!  107 format (1X,'CHECK: ', F12.4, ' %')
+  108 format (1X,'Percentage selectivities Sj (1 <= j <= nofmec; threshold ', &
+    ES8.1,')')
 
 end subroutine write_globalout
 
