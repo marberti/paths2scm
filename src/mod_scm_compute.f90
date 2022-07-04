@@ -38,7 +38,12 @@ subroutine scm_compute()
   integer(INT64) :: paths_found
   character(400) :: path
   character(8) :: istr
+  character(20) :: iistr
+  character(200), dimension(:), allocatable :: tmp_groups
+  character(200), dimension(:), allocatable :: tmp_unique
+  character(200), dimension(:), allocatable :: unique_paths_on_groups
   integer(INT64) :: ii
+  integer(INT64) :: jj
   integer :: ti
   integer :: j
   integer :: k
@@ -47,11 +52,13 @@ subroutine scm_compute()
   integer :: nmaxofsteps
   integer :: nofspecies
   integer :: nofsteps
+  integer(INT64) :: unique_paths_on_groups_n
   real(REAL64) :: s_array
   real(REAL64) :: sum_s_array
   real(REAL64) :: s
   integer, dimension(:), allocatable :: Labels_numb
   real(REAL64), dimension(:), allocatable :: E
+  logical :: flag_exist
   integer :: err_n
   character(120) :: err_msg
 
@@ -69,6 +76,7 @@ subroutine scm_compute()
   if (err_n /= 0) call error(my_name,err_msg)
 
   ! get paths_found
+  write(*,'(A)',advance='no') " Counting total paths ... "
   paths_found = 0
   do
     read(fnumb_in,*,iostat=err_n)
@@ -77,6 +85,64 @@ subroutine scm_compute()
   end do
   rewind(unit=fnumb_in,iostat=err_n,iomsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
+  write(iistr,'(I20)') paths_found
+  iistr = adjustl(iistr)
+  write(*,'(A)') "DONE: "//trim(iistr)//" paths found"
+
+  ! get unique_paths_on_groups
+  unique_paths_on_groups_n = 0
+  if (flag_scm_groups) then
+    write(*,'(A)',advance='no') " Getting unique paths on groups ... "
+
+    allocate(tmp_groups(paths_found),stat=err_n,errmsg=err_msg)
+    if (err_n /= 0) call error(my_name,err_msg)
+    allocate(tmp_unique(paths_found),stat=err_n,errmsg=err_msg)
+    if (err_n /= 0) call error(my_name,err_msg)
+
+    ! transform from paths to paths on groups
+    do ii = 1, paths_found
+      read(fnumb_in,'(A400)',iostat=err_n,iomsg=err_msg) path
+      if (err_n /= 0) call error(my_name,err_msg)
+      call get_path_on_groups(path,tmp_groups(ii))
+    end do
+
+    ! get unique paths on groups
+    do ii = 1, paths_found
+      flag_exist = .false.
+      do jj = 1, unique_paths_on_groups_n
+        if (tmp_groups(ii) == tmp_unique(jj)) then
+          flag_exist = .true.
+          exit
+        end if
+      end do
+
+      if (.not.flag_exist) then
+        unique_paths_on_groups_n = unique_paths_on_groups_n + 1
+        tmp_unique(unique_paths_on_groups_n) = tmp_groups(ii)
+      end if
+    end do
+
+    allocate(unique_paths_on_groups(unique_paths_on_groups_n),&
+      stat=err_n,errmsg=err_msg)
+    if (err_n /= 0) call error(my_name,err_msg)
+    do ii = 1, unique_paths_on_groups_n
+      unique_paths_on_groups(ii) = tmp_unique(ii)
+      write(*,*) trim(unique_paths_on_groups(ii))
+    end do
+
+    ! finalization
+    deallocate(tmp_groups,stat=err_n,errmsg=err_msg)
+    if (err_n /= 0) call error(my_name,err_msg)
+    deallocate(tmp_unique,stat=err_n,errmsg=err_msg)
+    if (err_n /= 0) call error(my_name,err_msg)
+
+    rewind(unit=fnumb_in,iostat=err_n,iomsg=err_msg)
+    if (err_n /= 0) call error(my_name,err_msg)
+
+    write(iistr,'(I20)') unique_paths_on_groups_n
+    iistr = adjustl(iistr)
+    write(*,'(A)') "DONE: "//trim(iistr)//" unique paths on groups found"
+  end if
 
   ! set some variables
   nofmec = paths_found
@@ -111,7 +177,8 @@ subroutine scm_compute()
     do ii = 1, paths_found
       currentmec = ii
 
-      read(fnumb_in,'(A400)') path
+      read(fnumb_in,'(A400)',iostat=err_n,iomsg=err_msg) path
+      if (err_n /= 0) call error(my_name,err_msg)
       nofspecies = count_fields(path)
       nofsteps = nofspecies + 1
 
@@ -170,6 +237,10 @@ subroutine scm_compute()
   if (err_n /= 0) call error(my_name,err_msg)
   deallocate(Theta_means,stat=err_n,errmsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
+  if (allocated(unique_paths_on_groups)) then
+    deallocate(unique_paths_on_groups,stat=err_n,errmsg=err_msg)
+    if (err_n /= 0) call error(my_name,err_msg)
+  end if
 
   ! close files
   close(unit=fnumb_in,iostat=err_n,iomsg=err_msg)
