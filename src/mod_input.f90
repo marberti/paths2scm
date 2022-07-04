@@ -112,7 +112,6 @@ subroutine read_input()
       labels(i) = adjustl(labels(i))
       if (len_trim(labels(i)) == 0) call error(my_name,"error reading labels")
     end do
-    write(*,'(10(2X,I6))') groups
   case default
     call error(my_name,"invalid mode "//trim(mode))
   end select
@@ -181,7 +180,7 @@ subroutine read_input()
   if (err_n /= 0) call error(my_name,err_msg)
 
   ! set
-  call set_scm_variables(t,labels,bars,pde,rde)
+  call set_scm_variables(t,labels,bars,pde,rde,flag_groups,groups)
 
   ! deallocate
   deallocate(t,stat=err_n,errmsg=err_msg)

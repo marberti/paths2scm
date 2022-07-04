@@ -13,6 +13,7 @@ module mod_scm_data
   ! protected variables
   protected :: flag_set_scm_variables,   &
                flag_scm_verbose,         &
+               flag_scm_groups,          &
                n_temper,                 &
                max_steps_n,              &
                v_number,                 &
@@ -20,9 +21,11 @@ module mod_scm_data
                reac_des_en,              &
                temper,                   &
                alllabels,                &
+               allgroups,                &
                barriers
   public    :: flag_set_scm_variables,   &
                flag_scm_verbose,         &
+               flag_scm_groups,          &
                n_temper,                 &
                max_steps_n,              &
                v_number,                 &
@@ -30,6 +33,7 @@ module mod_scm_data
                reac_des_en,              &
                temper,                   &
                alllabels,                &
+               allgroups,                &
                barriers
 
   ! private
@@ -38,21 +42,25 @@ module mod_scm_data
   real(REAL64) :: prod_des_en, reac_des_en
   real(REAL64), dimension(:), allocatable :: temper
   character(20), dimension(:), allocatable :: alllabels
+  integer, dimension(:), allocatable :: allgroups
   real(REAL64), dimension(:,:), allocatable :: barriers
   logical :: flag_set_scm_variables = .false.
   logical :: flag_scm_verbose = .false.
+  logical :: flag_scm_groups = .false.
 
 contains
 
 !!! Public !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-subroutine set_scm_variables(t,labels,bars,pde,rde)
+subroutine set_scm_variables(t,labels,bars,pde,rde,flag_groups,groups)
 
   real(REAL64), dimension(:), intent(in) :: t
   character(16), dimension(:), intent(in) :: labels
   real(REAL64), dimension(:,:), intent(in) :: bars
   real(REAL64), intent(in) :: pde
   real(REAL64), intent(in) :: rde
+  logical, intent(in) :: flag_groups
+  integer, dimension(:), intent(in) :: groups
   character(*), parameter :: my_name = "set_scm_variables"
   character(8) :: i_str
   integer :: i
@@ -84,6 +92,15 @@ subroutine set_scm_variables(t,labels,bars,pde,rde)
 
   prod_des_en = pde
   reac_des_en = rde
+
+  flag_scm_groups = flag_groups
+  if (flag_groups) then
+    n = size(groups)
+    if (n /= v_number) call error(my_name,"wrong size of groups argument")
+    allocate(allgroups(n),stat=err_n,errmsg=err_msg)
+    if (err_n /= 0) call error(my_name,err_msg)
+    allgroups = groups
+  end if
 
   flag_set_scm_variables = .true.
 
