@@ -24,9 +24,11 @@ subroutine read_input()
   ! tn
   !     <empty line>
   ! n_n                          | number of nodes
-  ! n1                           | list of n_n node labels, one per line
-  ! ...
-  ! nn
+  ! mode                         | mode can be "vertex_only" or "vertex_group"
+  ! n1 [g1]                      | n_n lines containing each a node label
+  ! ...                          | (string) and optionally a node group
+  ! ...                          | (integer), as specified by mode.
+  ! nn [gn]
   !     <empty line>
   ! e_n                          | number of edges
   ! mode                         | mode can be "index" or "label"
@@ -58,11 +60,15 @@ subroutine read_input()
   integer :: e_n
   real(REAL64), dimension(:), allocatable :: t
   character(16), dimension(:), allocatable :: labels
+  integer, dimension(:), allocatable :: groups
   real(REAL64), dimension(:,:), allocatable :: bars
   real(REAL64) :: pde
   real(REAL64) :: rde
+  logical :: flag_groups
   integer :: err_n
   character(120) :: err_msg
+
+  flag_groups = .false.
 
   ! open
   open(unit=fnumb,file=fname,status="old",action="read", &
@@ -84,14 +90,32 @@ subroutine read_input()
   ! nodes
   read(fnumb,*,iostat=err_n,iomsg=err_msg) n_n
   if (err_n /= 0) call error(my_name,err_msg)
+  read(fnumb,'(A16)',iostat=err_n,iomsg=err_msg) mode
+  if (err_n /= 0) call error(my_name,err_msg)
   allocate(labels(n_n),stat=err_n,errmsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
-  do i = 1, n_n
-    read(fnumb,'(A16)',iostat=err_n,iomsg=err_msg) labels(i)
-    if (err_n /= 0) call error(my_name,err_msg)
-    labels(i) = adjustl(labels(i))
-    if (len_trim(labels(i)) == 0) call error(my_name,"error reading labels")
-  end do
+  allocate(groups(n_n),stat=err_n,errmsg=err_msg)
+  if (err_n /= 0) call error(my_name,err_msg)
+  select case (mode)
+  case ("vertex_only")
+    do i = 1, n_n
+      read(fnumb,'(A16)',iostat=err_n,iomsg=err_msg) labels(i)
+      if (err_n /= 0) call error(my_name,err_msg)
+      labels(i) = adjustl(labels(i))
+      if (len_trim(labels(i)) == 0) call error(my_name,"error reading labels")
+    end do
+  case ("vertex_group")
+    flag_groups = .true.
+    do i = 1, n_n
+      read(fnumb,*,iostat=err_n,iomsg=err_msg) labels(i), groups(i)
+      if (err_n /= 0) call error(my_name,err_msg)
+      labels(i) = adjustl(labels(i))
+      if (len_trim(labels(i)) == 0) call error(my_name,"error reading labels")
+    end do
+    write(*,'(10(2X,I6))') groups
+  case default
+    call error(my_name,"invalid mode "//trim(mode))
+  end select
   read(fnumb,*,iostat=err_n,iomsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
 
@@ -163,6 +187,8 @@ subroutine read_input()
   deallocate(t,stat=err_n,errmsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
   deallocate(labels,stat=err_n,errmsg=err_msg)
+  if (err_n /= 0) call error(my_name,err_msg)
+  deallocate(groups,stat=err_n,errmsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
   deallocate(bars,stat=err_n,errmsg=err_msg)
   if (err_n /= 0) call error(my_name,err_msg)
